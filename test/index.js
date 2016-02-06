@@ -6,6 +6,7 @@ var winapi = require('../');
 
 describe("Initial test suite", function(){
 
+
   it("Should measure 1s of inactity", function(done){
 
       var start = winapi.GetLastInputInfo();
@@ -33,6 +34,15 @@ describe("Initial test suite", function(){
       console.log("You took %s to do stuff", (now - start) / 1000)
       done();
     }, 2000);
+
+  });
+
+
+  it("Last idle Time should be recent", function(){
+
+      var since = winapi.getIdleTime();
+      console.log("System idle since ", since/1000);
+      expect(since < 2000).to.be.ok();
 
   });
 

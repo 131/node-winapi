@@ -21,10 +21,29 @@ void GetLastInputInfo(const v8::FunctionCallbackInfo<Value>& info) {
   info.GetReturnValue().Set(num);
 }
 
+void GetTickCount(const v8::FunctionCallbackInfo<Value>& info) {
+  Isolate* isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+
+
+  int elapsed = ::GetTickCount();
+
+  v8::Local<v8::Number> num = Nan::New(elapsed);
+
+  info.GetReturnValue().Set(num);
+}
+
+
+
+
 void Init(Handle<Object> exports) {
   Isolate* isolate = Isolate::GetCurrent();
   exports->Set(String::NewFromUtf8(isolate, "GetLastInputInfo"),
       FunctionTemplate::New(isolate, GetLastInputInfo)->GetFunction());
+
+  exports->Set(String::NewFromUtf8(isolate, "GetTickCount"),
+      FunctionTemplate::New(isolate, GetTickCount)->GetFunction());
+
 }
 
 NODE_MODULE(winapi, Init)
