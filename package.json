@@ -7,12 +7,34 @@
     "bindings": "~1.2.1",
     "nan": "^2.0.0"
   },
-  "scripts" : {
-    "test" : "node node_modules/mocha/bin/mocha test"
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha test",
+    "install": "node-gyp rebuild"
   },
   "gypfile": true,
   "devDependencies": {
     "expect.js": "^0.3.1",
     "mocha": "^2.4.5"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/131/node-winapi.git"
+  },
+  "keywords": [
+    "screensaver",
+    "GetLastInputInfo",
+    "winapi",
+    "windows.h",
+    "activity",
+    "idletimer"
+  ],
+  "author": "Francois Leurent <131.js@cloudyks.org>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/131/node-winapi/issues"
+  },
+  "homepage": "https://github.com/131/node-winapi#readme"
 }
