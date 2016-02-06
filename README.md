@@ -23,5 +23,6 @@ setTimeout(function(){
 
 
 # Keywords / shout box
-screensaver, windows api, winuser.h, GetLastInputInfo
+screensaver, windows api, winuser.h, GetLastInputInfo, activity monitor, inactivity trigger
+
 
