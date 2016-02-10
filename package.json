@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "bindings": "~1.2.1",
-    "nan": "^2.0.0"
+    "nan": "^1.9.0"
   },
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha test",
@@ -31,10 +31,17 @@
     "activity",
     "idletimer"
   ],
-  "author": "Francois Leurent <131.js@cloudyks.org>",
+  "author": {
+    "name": "Francois Leurent",
+    "email": "131.js@cloudyks.org"
+  },
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/131/node-winapi/issues"
   },
-  "homepage": "https://github.com/131/node-winapi#readme"
+  "homepage": "https://github.com/131/node-winapi#readme",
+  "readme": "# winapi\r\nMisc natives wrappers for nodejs\r\n\r\n## require('winapi').getIdleTime()\r\nReturn the time the system has been idle (since last user interaction - e.g. mouse, keyboard & stuffs, see GetLastInputInfo)\r\nThis is really usefull if you want to create a screensaver/like in nodejs / node-webkit.\r\n\r\n```\r\nvar winapi = require('winapi');\r\n\r\nconsole.log(\"System is idle since %s\", winapi.getIdleTime() );\r\n\r\n```\r\n\r\n\r\n\r\n## require('winapi').GetLastInputInfo()\r\nUse this native binding to get system last input time ([see MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/ms646302%28v=vs.85%29.aspx) )\r\n\r\n```\r\nvar winapi = require('winapi');\r\n\r\nconsole.log(\"Last input time is %s\", winapi.GetLastInputInfo() );\r\n\r\nsetTimeout(function(){\r\n  //do not move, it wont change !\r\n  console.log(\"Last input time is %s\", winapi.GetLastInputInfo() );\r\n}, 1000);\r\n\r\n```\r\n\r\n\r\n## require('winapi').GetTickCount()\r\nRetrieves the number of milliseconds that have elapsed since the system was started (uptime). ([see MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/ms724408%28v=vs.85%29.aspx) )\r\n\r\n\r\n# Credits\r\n* [131](mailto:131.js@cloudyks.org)\r\n\r\n\r\n# Keywords / shout box\r\nscreensaver, windows api, winuser.h, GetLastInputInfo, activity monitor, inactivity trigger, idle timer, system uptime, sytem bootime\r\n\r\n\r\n",
+  "readmeFilename": "README.md",
+  "_id": "winapi@1.1.0",
+  "_from": "winapi@^1.1.0"
 }
