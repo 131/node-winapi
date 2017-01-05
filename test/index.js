@@ -6,6 +6,13 @@ var winapi = require('../');
 
 describe("Initial test suite", function(){
 
+  it("should list pids", function(){
+
+    var foo = winapi.GetChildrenProcess( winapi.GetParentProcess() );
+
+    expect(foo.indexOf(process.pid)).not.to.eql(-1);
+  });
+
 
   it("Should measure 1s of inactity", function(done){
 
@@ -45,6 +52,7 @@ describe("Initial test suite", function(){
       expect(since < 2000).to.be.ok();
 
   });
+
 
 
 

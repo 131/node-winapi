@@ -30,6 +30,15 @@ setTimeout(function(){
 ```
 
 
+## require('winapi').GetChildrenProcess([parentProcessId])
+List all children process (of specified parent PID, default to current process)
+
+
+## require('winapi').GetParentProcess([childProcessId])
+Get a process parent PID (of specified process PID, default to current process)
+
+
+
 ## require('winapi').GetTickCount()
 Retrieves the number of milliseconds that have elapsed since the system was started (uptime). ([see MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/ms724408%28v=vs.85%29.aspx) )
 
