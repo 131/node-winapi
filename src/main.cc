@@ -2,40 +2,33 @@
 #include <windows.h>
 
 
-using namespace v8;
 
 
+void GetLastInputInfo(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
-NAN_METHOD(GetLastInputInfo)
-{
-  NanScope();
-  
   LASTINPUTINFO li;
   li.cbSize = sizeof(LASTINPUTINFO);
   ::GetLastInputInfo(&li);
   
   int elapsed = li.dwTime;
-  
-  NanReturnValue(NanNew<v8::Number>(elapsed));
+
+  info.GetReturnValue().Set(Nan::New(elapsed));
 }
 
-NAN_METHOD(GetTickCount)
-{
-  NanScope();
-  
+void GetTickCount(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   int elapsed = ::GetTickCount();
 
-  NanReturnValue(NanNew<v8::Number>(elapsed));
+  info.GetReturnValue().Set(Nan::New(elapsed));
 }
 
 
+void Init(v8::Local<v8::Object> exports) {
+  exports->Set(Nan::New("GetLastInputInfo").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetLastInputInfo)->GetFunction());
 
-void Init(Handle<Object> exports) {
-  NanScope();
-  
-  exports->Set(NanNew<v8::String>("GetLastInputInfo"), NanNew<v8::FunctionTemplate>(GetLastInputInfo)->GetFunction());
-  exports->Set(NanNew<v8::String>("GetTickCount"), NanNew<v8::FunctionTemplate>(GetTickCount)->GetFunction());
+  exports->Set(Nan::New("GetTickCount").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetTickCount)->GetFunction());
+
 }
+
 
 
 

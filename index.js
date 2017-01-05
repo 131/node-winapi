@@ -5,15 +5,7 @@ try {
    winapi = require('bindings')('winapi');
 
 } catch (e) {
-  winapi = {
-      GetLastInputInfo : function(){
-        return Date.now();
-      },
-      GetTickCount : function(){
-        return Date.now();
-      }
-
-  };
+  throw Error("Could not load winapi");
 }
 
 
