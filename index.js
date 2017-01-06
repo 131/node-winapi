@@ -2,10 +2,9 @@
 
 var winapi;
 try {
-   winapi = require('bindings')('winapi');
-
+   winapi = require(`./winapi_${process.platform}_${process.versions.modules}`);
 } catch (e) {
-  throw Error("Could not load winapi");
+  throw Error("Compilation of winapi has failed and there is no pre-compiled binary available for your system. Please install a supported C++11 compiler and reinstall the module 'winapi'");
 }
 
 

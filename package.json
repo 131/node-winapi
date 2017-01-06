@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha test",
-    "install": "node-gyp rebuild"
+    "install": "node-gyp rebuild > build_log.txt 2>&1 || exit 0"
   },
   "gypfile": true,
   "devDependencies": {
