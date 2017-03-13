@@ -6,6 +6,9 @@ var winapi = require('../');
 
 describe("Initial test suite", function(){
 
+
+
+
   it("should list pids", function(){
 
     var foo = winapi.GetChildrenProcess( winapi.GetParentProcess() );
@@ -50,6 +53,26 @@ describe("Initial test suite", function(){
       var since = winapi.getIdleTime();
       console.log("System idle since ", since/1000);
       expect(since < 2000).to.be.ok();
+
+  });
+
+
+  this.timeout(20 * 1000);
+  it("should check screen orientation", function(done){
+    
+      var initial;
+      winapi.GetDisplaySettings(function(err, value){
+          initial = value.Orientation;
+          var newval = (initial+1) %4;
+console.log({initial, newval});
+          winapi.ReOrientDisplay(newval, function(err, value){
+
+          winapi.GetDisplaySettings(function(err, value){
+            expect(value.Orientation).to.eql(newval);
+            winapi.ReOrientDisplay(initial, done);
+          });
+        });
+      });
 
   });
 
