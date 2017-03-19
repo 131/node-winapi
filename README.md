@@ -1,5 +1,14 @@
+
 # winapi
-Misc natives wrappers for nodejs
+Misc natives MS Windows API wrappers for nodejs
+
+[![Version](https://img.shields.io/npm/v/ubk.svg)](https://www.npmjs.com/package/ubk)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](http://opensource.org/licenses/MIT)
+![Available platform](https://img.shields.io/badge/platform-win32-blue.svg)
+
+
+
+# API
 
 ## require('winapi').getIdleTime()
 Return the time the system has been idle (since last user interaction - e.g. mouse, keyboard & stuffs, see GetLastInputInfo)

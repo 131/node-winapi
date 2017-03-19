@@ -11,6 +11,9 @@
     "test": "node node_modules/mocha/bin/mocha test",
     "install": "node-gyp rebuild > build_log.txt 2>&1 || exit 0"
   },
+  "os": [
+    "win32"
+  ],
   "gypfile": true,
   "devDependencies": {
     "expect.js": "^0.3.1",
