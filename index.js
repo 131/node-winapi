@@ -28,6 +28,14 @@ winapi.ReOrientDisplay = function(orientation, chain){
 
 
 
+winapi.GetDisplaysList = function( chain){
+  exec([winapiCS, "GetDisplaysList"].join(' '), {}, function(err, stdout){
+    chain(err, JSON.parse(stdout));
+  });
+}
+
+
+
 var bootTime;
 
 winapi.getIdleTime = function(){

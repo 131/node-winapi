@@ -51,6 +51,8 @@ Get a process parent PID (of specified process PID, default to current process)
 ## require('winapi').GetTickCount()
 Retrieves the number of milliseconds that have elapsed since the system was started (uptime). ([see MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/ms724408%28v=vs.85%29.aspx) )
 
+### require('winapi').GetDisplaysList(console.log)
+List all connected screens
 
 # Credits
 * [131](mailto:131.js@cloudyks.org)

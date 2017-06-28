@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using System.Web.Script.Serialization;
+using System.Windows.Forms;
 
 namespace WinAPI
 {
@@ -13,7 +14,8 @@ namespace WinAPI
     {
 
     const string CMD_ReOrientDisplay = "ReOrientDisplay";
-    const string  CMD_GetDisplaySettings = "GetDisplaySettings";
+    const string CMD_GetDisplaySettings = "GetDisplaySettings";
+    const string CMD_GetDisplayList = "GetDisplaysList";
 
 
         static void Main(string[] args)
@@ -23,6 +25,13 @@ namespace WinAPI
             {
                 User32.DisplaySettings ta = User32.GetDisplaySettings();
                 Console.WriteLine(new JavaScriptSerializer().Serialize(ta));
+            }
+
+            if (cmd == CMD_GetDisplayList)
+            {
+
+                Console.WriteLine(new JavaScriptSerializer().Serialize(Screen.AllScreens));
+
             }
 
             if (cmd == CMD_ReOrientDisplay)
