@@ -1,21 +1,24 @@
 'use strict';
-var exec = require('child_process').exec;
-var path = require('path');
 
+const path     = require('path');
+const execFile = require('child_process').execFile;
+
+
+const winapiCS = path.join(__dirname, 'WinAPI.exe');
 
 var winapi;
+
 try {
    winapi = require(`./winapi_${process.platform}_${process.versions.modules}`);
 } catch (e) {
   throw Error("Compilation of winapi has failed and there is no pre-compiled binary available for your system. Please install a supported C++11 compiler and reinstall the module 'winapi'");
 }
 
-var winapiCS = path.join(__dirname, 'WinAPI.exe');
 
 
 winapi.GetDisplaySettings = function(chain){
-  exec([winapiCS, "GetDisplaySettings"].join(' '), function(err, stdout){
-    chain(err, JSON.parse(stdout));
+  execFile(winapiCS, ["GetDisplaySettings"], function(err, stdout){
+   chain(err, JSON.parse(stdout));
   });
   
 }
@@ -23,14 +26,14 @@ winapi.GetDisplaySettings = function(chain){
 
 
 winapi.ReOrientDisplay = function(orientation, chain){
-  exec([winapiCS, "ReOrientDisplay", orientation].join(' '), {}, chain);
+  execFile(winapiCS, ["ReOrientDisplay", orientation], {}, chain);
 }
 
 
 
 winapi.GetDisplaysList = function( chain){
-  exec([winapiCS, "GetDisplaysList"].join(' '), {}, function(err, stdout){
-    chain(err, JSON.parse(stdout));
+  execFile(winapiCS, ["GetDisplaysList"], {}, function(err, stdout){
+   chain(err, JSON.parse(stdout));
   });
 }
 
@@ -42,7 +45,7 @@ winapi.getIdleTime = function(){
   if(!bootTime)
      bootTime = Date.now() - winapi.GetTickCount();
 
-  return Date.now() - bootTime - winapi.GetLastInputInfo();
+ return Date.now() - bootTime - winapi.GetLastInputInfo();
 }
 
 
