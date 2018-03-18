@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha test",
-    "install": "node-gyp rebuild > build_log.txt 2>&1 || exit 0"
+    "install": "node-gyp rebuild > build_log.txt 2>&1 || exit 0",
+    "installnw": "set npm_config_runtime=nwjs&& nw-gyp rebuild --target=0.26.0 --arch=ia32 --verbose"
   },
   "os": [
     "win32"

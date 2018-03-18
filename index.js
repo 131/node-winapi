@@ -8,10 +8,12 @@ const winapiCS = path.join(__dirname, 'WinAPI.exe');
 
 var winapi;
 
+const engine = process.versions.nw ? "nwjs" : "node";
+const module_path = `./winapi_${process.platform}_${process.versions.modules}_${engine}.node`;
 try {
-   winapi = require(`./winapi_${process.platform}_${process.versions.modules}`);
+   winapi = require(module_path);
 } catch (e) {
-  throw Error("Compilation of winapi has failed and there is no pre-compiled binary available for your system. Please install a supported C++11 compiler and reinstall the module 'winapi'");
+  throw Error(`Compilation of winapi has failed and there is no pre-compiled binary available for your system. Please install a supported C++11 compiler and reinstall the module 'winapi' (missing ${module_path})`);
 }
 
 
