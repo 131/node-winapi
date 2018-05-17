@@ -1,19 +1,20 @@
 'use strict';
 
-const path     = require('path');
-const execFile = require('child_process').execFile;
+var path     = require('path');
+var execFile = require('child_process').execFile;
+var sprintf = require('util').format;
 
 
-const winapiCS = path.join(__dirname, 'WinAPI.exe');
+var winapiCS = path.join(__dirname, 'WinAPI.exe');
 
 var winapi;
 
-const engine = process.versions.nw ? "nwjs" : "node";
-const module_path = `./winapi_${process.platform}_${process.versions.modules}_${engine}.node`;
+var engine = process.versions.nw ? "nwjs" : "node";
+var module_path = sprintf('./winapi_%s_%s_%s.node', process.platform, process.versions.modules, engine) ;
 try {
   winapi = require(module_path);
 } catch(e) {
-  throw Error(`Compilation of winapi has failed and there is no pre-compiled binary available for your system. Please install a supported C++11 compiler and reinstall the module 'winapi' (missing ${module_path})`);
+  throw Error(sprintf("Compilation of winapi has failed and there is no pre-compiled binary available for your system. Please install a supported C++11 compiler and reinstall the module 'winapi' (missing %s)", module_path) );
 }
 
 
