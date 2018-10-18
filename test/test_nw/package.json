@@ -1,0 +1,14 @@
+{
+  "name" : "winapitester",
+  "main" : "index.html",
+
+  "window" : {
+    "show" : true
+
+  },
+
+  "chromium-args": "--mixed-context --remote-debugging-port=0 --user-data-dir=./.nwjscache"
+
+
+
+}

@@ -22,6 +22,21 @@ console.log("System is idle since %s", winapi.getIdleTime() );
 
 ```
 
+## require('winapi').CreateJobGroup()
+Create a [job group](https://docs.microsoft.com/fr-fr/windows/desktop/ProcThread/job-objects) with current process and all future child_process. Use this to kill zombies. Like Rick.
+
+```
+var winapi = require('winapi');
+
+winapi.CreateJobGroup();
+
+//you can now spawn subprocess and they'll be killed once you died, windows will clean everything up
+
+```
+* (checkout my [dispatcher](https://github.com/131/dispatcher) project for inspiration)
+* Available for node 8, nw 26 and nw 14. (i did not re-compile other platform binaries, do it by yourself...)
+
+
 
 
 ## require('winapi').GetLastInputInfo()

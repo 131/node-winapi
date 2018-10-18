@@ -22,6 +22,32 @@ void GetTickCount(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   info.GetReturnValue().Set(Nan::New(elapsed));
 }
 
+
+void CreateJobGroup(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+
+  HANDLE                               hJob;
+  HANDLE                               currentProcess;
+  JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = { 0 };
+  PROCESS_INFORMATION                  pi   = { 0 };
+  STARTUPINFO                          si   = { 0 };
+
+  //Create a job object.
+  hJob = CreateJobObject(NULL, NULL);
+
+  //kill all processes associated with the job to terminate when the last handle to the job is closed.
+
+  jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+  SetInformationJobObject(hJob, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli));
+  currentProcess = GetCurrentProcess();
+
+  AssignProcessToJobObject(hJob, currentProcess);
+
+  info.GetReturnValue().Set(Nan::Undefined());
+}
+
+
+
+
 void ListProcessPID(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
   int pid = -1;
@@ -96,6 +122,7 @@ void getParentPid(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 
 void Init(v8::Local<v8::Object> exports) {
+  exports->Set(Nan::New("CreateJobGroup").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(CreateJobGroup)->GetFunction());
   exports->Set(Nan::New("GetLastInputInfo").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetLastInputInfo)->GetFunction());
   exports->Set(Nan::New("GetTickCount").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetTickCount)->GetFunction());
   exports->Set(Nan::New("GetChildrenProcess").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(ListProcessPID)->GetFunction());
