@@ -10,7 +10,7 @@ var winapiCS = path.join(__dirname, 'WinAPI.exe');
 var winapi;
 
 var engine = process.versions.nw ? "nwjs" : "node";
-var module_path = sprintf('./winapi_%s_%s_%s.node', process.platform, process.versions.modules, engine) ;
+var module_path = sprintf('./winapi_%s_%s_%s_%s.node', process.platform, process.versions.modules, process.arch, engine) ;
 try {
   winapi = require(module_path);
 } catch(e) {
