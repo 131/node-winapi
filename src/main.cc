@@ -49,7 +49,7 @@ void CreateJobGroup(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 
 void ListProcessPID(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   int pid = -1;
 
   if (info.Length() < 1)
@@ -59,7 +59,7 @@ void ListProcessPID(const Nan::FunctionCallbackInfo<v8::Value>& info) {
       Nan::ThrowTypeError("Wrong arguments");
       return;
     }
-    pid = info[0]->NumberValue();
+    pid = info[0]->Int32Value(context).FromJust();
   }
 
 
@@ -76,7 +76,7 @@ void ListProcessPID(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   if( Process32First(h, &pe)) {
     do {
       if (pe.th32ParentProcessID == pid)
-        children->Set(i++, Nan::New( (int) pe.th32ProcessID) );
+        children->Set(context, i++, Nan::New( (int) pe.th32ProcessID) );
     } while( Process32Next(h, &pe));
   }
 
@@ -88,7 +88,7 @@ void ListProcessPID(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 
 void getParentPid(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-
+  v8::Local<v8::Context> context = info.GetIsolate()->GetCurrentContext();
   int pid = -1;
 
   if (info.Length() < 1)
@@ -98,7 +98,7 @@ void getParentPid(const Nan::FunctionCallbackInfo<v8::Value>& info) {
       Nan::ThrowTypeError("Wrong arguments");
       return;
     }
-    pid = info[0]->NumberValue();
+    pid = info[0]->Int32Value(context).FromJust();
   }
 
   int parentPid = -1;
@@ -120,13 +120,13 @@ void getParentPid(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 }
 
 
-
 void Init(v8::Local<v8::Object> exports) {
-  exports->Set(Nan::New("CreateJobGroup").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(CreateJobGroup)->GetFunction());
-  exports->Set(Nan::New("GetLastInputInfo").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetLastInputInfo)->GetFunction());
-  exports->Set(Nan::New("GetTickCount").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetTickCount)->GetFunction());
-  exports->Set(Nan::New("GetChildrenProcess").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(ListProcessPID)->GetFunction());
-  exports->Set(Nan::New("GetParentProcess").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(getParentPid)->GetFunction());
+  v8::Local<v8::Context> context = exports->CreationContext();
+  exports->Set(Nan::New("CreateJobGroup").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(CreateJobGroup)->GetFunction(context).ToLocalChecked());
+  exports->Set(Nan::New("GetLastInputInfo").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetLastInputInfo)->GetFunction(context).ToLocalChecked());
+  exports->Set(Nan::New("GetTickCount").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetTickCount)->GetFunction(context).ToLocalChecked());
+  exports->Set(Nan::New("GetChildrenProcess").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(ListProcessPID)->GetFunction(context).ToLocalChecked());
+  exports->Set(Nan::New("GetParentProcess").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(getParentPid)->GetFunction(context).ToLocalChecked());
 
 }
 
