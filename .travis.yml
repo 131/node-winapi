@@ -1,0 +1,10 @@
+matrix:
+  include:
+  - os: windows
+    language: node_js
+    node_js:
+    - 8
+    install:
+    - cmd.exe /c "make.bat"
+    script: skip     #skip tests 
+

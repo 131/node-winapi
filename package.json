@@ -11,6 +11,7 @@
     "test": "node node_modules/mocha/bin/mocha test",
     "install": "node-gyp rebuild > build_log.txt 2>&1 || exit 0",
     "buildnw26": "set npm_config_runtime=nwjs&& set npm_config_modules=57&& nw-gyp rebuild --target=0.26.0 --arch=ia32 --verbose",
+    "buildnw266": "set npm_config_runtime=nwjs&& set npm_config_modules=59&& nw-gyp rebuild --target=0.26.6 --arch=ia32 --verbose",
     "buildnw14": "set npm_config_runtime=nwjs&& set npm_config_modules=47&& nw-gyp rebuild --target=0.14.6 --arch=ia32 --verbose"
   },
   "os": [
