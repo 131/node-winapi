@@ -16,6 +16,8 @@ namespace WinAPI
     const string CMD_ReOrientDisplay = "ReOrientDisplay";
     const string CMD_GetDisplaySettings = "GetDisplaySettings";
     const string CMD_GetDisplayList = "GetDisplaysList";
+    const string CMD_MaximizeWindow = "MaximizeWindow";
+    const string CMD_MinimizeWindow = "MinimizeWindow";
 
 
         static void Main(string[] args)
@@ -41,7 +43,19 @@ namespace WinAPI
                 User32.ReOrientDisplay(orientation);
             }
 
+            if (cmd == CMD_MaximizeWindow)
+            {
+                string title = args[1];
+                Console.WriteLine(title);
+                User32.MaximizeWindow(title);
+            }
 
+            if (cmd == CMD_MinimizeWindow)
+            {
+                string title = args[1];
+                Console.WriteLine(title);
+                User32.MinimizeWindow(title);
+            }
 
         }
 

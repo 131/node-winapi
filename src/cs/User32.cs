@@ -9,10 +9,13 @@ using System.Drawing;
 using System.Windows.Forms;
 
 
+
+
 namespace WinAPI
 {
 
-  [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
   internal struct DEVMODE
   {
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
@@ -368,6 +371,9 @@ namespace WinAPI
     private const int sICONDIR = 6;            // sizeof(ICONDIR) 
     private const int sICONDIRENTRY = 16;      // sizeof(ICONDIRENTRY)
     private const int sGRPICONDIRENTRY = 14;   // sizeof(GRPICONDIRENTRY)
+
+    private const int SW_MAXIMIZE = 3;
+    private const int SW_MINIMIZE = 6;
     /// <summary>
     /// Split an Icon consists of multiple icons into an array of Icon each consist of single icons.
     /// </summary>
@@ -747,6 +753,10 @@ namespace WinAPI
       return SystemParametersInfo(uiAction, (uint)(uiParam ? 1 : 0), ref result, fWinIni);
     }
 
+    [DllImport("user32.dll", EntryPoint = "FindWindow")]
+    public static extern IntPtr FindWindowByCaption(IntPtr ZeroOnly, string lpWindowName);
+
+
     [DllImport("user32.dll")]
     public static extern bool MoveWindow(IntPtr hWnd,
                                           int X,
@@ -862,6 +872,18 @@ namespace WinAPI
         DEVMODE = dm,
       };
 
+    }
+
+    public static bool MaximizeWindow(string title)
+    {
+        IntPtr hwnd = FindWindowByCaption(IntPtr.Zero, title);
+        return ShowWindow(hwnd, SW_MAXIMIZE);
+    }
+
+    public static bool MinimizeWindow(string title)
+    {
+        IntPtr hwnd = FindWindowByCaption(IntPtr.Zero, title);
+        return ShowWindow(hwnd, SW_MINIMIZE);
     }
 
     private static int GetDisplaySettings(ref DEVMODE dm)

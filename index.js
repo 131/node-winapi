@@ -32,7 +32,13 @@ winapi.ReOrientDisplay = function(orientation, chain) {
   execFile(winapiCS, ["ReOrientDisplay", orientation], {}, chain);
 };
 
+winapi.MaximizeWindow = function(title, chain) {
+  execFile(winapiCS, ["MaximizeWindow", title], {}, chain);
+};
 
+winapi.MinimizeWindow = function(title, chain) {
+  execFile(winapiCS, ["MinimizeWindow", title], {}, chain);
+};
 
 winapi.GetDisplaysList = function(chain) {
   execFile(winapiCS, ["GetDisplaysList"], {}, function(err, stdout) {
