@@ -40,6 +40,15 @@ winapi.MinimizeWindow = function(title, chain) {
   execFile(winapiCS, ["MinimizeWindow", title], {}, chain);
 };
 
+
+winapi.HideWindow = function(title, chain) {
+  execFile(winapiCS, ["HideWindow", title], {}, chain);
+};
+
+winapi.ShowWindow = function(title, chain) {
+  execFile(winapiCS, ["ShowWindow", title], {}, chain);
+};
+
 winapi.GetDisplaysList = function(chain) {
   execFile(winapiCS, ["GetDisplaysList"], {}, function(err, stdout) {
     chain(err, JSON.parse(stdout));
