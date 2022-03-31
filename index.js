@@ -4,17 +4,15 @@ var path     = require('path');
 var execFile = require('child_process').execFile;
 var sprintf = require('util').format;
 
-
-var winapiCS = path.join(__dirname, 'WinAPI.exe');
-
 var winapi;
 
-var engine = process.versions.nw ? "nwjs" : "node";
-var module_path = sprintf('./winapi_%s_%s_%s_%s.node', process.platform, process.versions.modules, process.arch, engine) ;
+
+var winapiCS = path.join(__dirname, 'WinAPI.exe');
 try {
-  winapi = require(module_path);
+  winapi = require('node-gyp-build')(__dirname);
 } catch(e) {
-  throw Error(sprintf("Compilation of winapi has failed and there is no pre-compiled binary available for your system. Please install a supported C++11 compiler and reinstall the module 'winapi' (missing %s)", module_path) );
+  console.log(e);
+  throw Error(sprintf("Compilation of winapi has failed and there is no pre-compiled binary available for your system. Please install a supported C++11 compiler and reinstall the module 'winapi' (missing %s)") );
 }
 
 
