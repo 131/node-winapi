@@ -1,0 +1,27 @@
+name: tests
+on: [push]
+jobs:
+  tests:
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+    - uses: msys2/setup-msys2@v2
+      with:
+        path-type: inherit
+        install: rsync
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '12.x'
+    - run: powershell Install-WindowsFeature Net-Framework-Core
+    - run: powershell Install-Module VSSetup -Scope CurrentUser
+    - run: powershell Get-VSSetupInstance
+    - run: ./make.bat
+      env:
+        MSYS2_ARG_CONV_EXCL: "*"
+        SIGNING_SERVER: ${{ secrets.SIGNING_SERVER }}
+    - run: find
+
+
