@@ -1,10 +1,7 @@
-call npm install
-call npm install -g nw-gyp prebuildify node-gyp
-
-"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -prerelease -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
-
-set path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin
-set path=%path%;C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin
+REM expand path with Msbuild.exe path
+"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -prerelease -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe > %temp%\MSBUILD_PATH && set /P MSBUILD_PATH=<%temp%\MSBUILD_PATH
+for %%F in ("%MSBUILD_PATH%") do set MSBUILD_DIR=%%~dpF
+set path=%path%;%MSBUILD_DIR%
 
 where msbuild.exe
 

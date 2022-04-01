@@ -15,13 +15,11 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: '12.x'
+    - run: npm install
+    - run: npm install -g nw-gyp prebuildify node-gyp
     - run: powershell Install-WindowsFeature Net-Framework-Core
-    - run: powershell Install-Module VSSetup -Scope CurrentUser
-    - run: powershell Get-VSSetupInstance
     - run: ./make.bat
-      env:
-        MSYS2_ARG_CONV_EXCL: "*"
-        SIGNING_SERVER: ${{ secrets.SIGNING_SERVER }}
-    - run: find
+    - run: npm run test
+
 
 
