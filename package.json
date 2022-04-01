@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "nan": "^2.2.0",
-    "node-gyp-build": "^4.3.0"
+    "node-gyp-build": "^4.4.0"
   },
   "scripts": {
     "eslint": "eslint index.js",
