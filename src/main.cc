@@ -1,7 +1,21 @@
 #include <nan.h>
 #include <windows.h>
+#include <winuser.h>
 #include <tlhelp32.h>
 
+
+
+// The width of the virtual screen, in pixels.
+static int vscreenWidth = -1; // not initialized
+
+// The height of the virtual screen, in pixels.
+static int vscreenHeight = -1; // not initialized
+
+// The coordinates for the left side of the virtual screen.
+static int vscreenMinX = 0;
+
+// The coordinates for the top of the virtual screen.
+static int vscreenMinY = 0;
 
 
 
@@ -49,7 +63,6 @@ void CreateJobGroup(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 
 void ListProcessPID(const Nan::FunctionCallbackInfo<v8::Value>& info) {
-
   int pid = -1;
 
   if (info.Length() < 1)
@@ -59,7 +72,7 @@ void ListProcessPID(const Nan::FunctionCallbackInfo<v8::Value>& info) {
       Nan::ThrowTypeError("Wrong arguments");
       return;
     }
-    pid = info[0]->NumberValue();
+    pid = Nan::To<int32_t>(info[0]).ToChecked();
   }
 
 
@@ -86,6 +99,43 @@ void ListProcessPID(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 }
 
 
+void SetCursorPos(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+  int x = Nan::To<int32_t>(info[0]).ToChecked();;
+  int y = Nan::To<int32_t>(info[1]).ToChecked();;
+
+  SetCursorPos(x, y);
+}
+
+
+void updateScreenMetrics()
+{
+  vscreenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+  vscreenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+  vscreenMinX = GetSystemMetrics(SM_XVIRTUALSCREEN);
+  vscreenMinY = GetSystemMetrics(SM_YVIRTUALSCREEN);
+}
+
+
+void moveMouse(const Nan::FunctionCallbackInfo<v8::Value>& info) {
+
+
+  if(vscreenWidth<0 || vscreenHeight<0)
+    updateScreenMetrics();
+
+  int x = Nan::To<int32_t>(info[0]).ToChecked();
+  int y = Nan::To<int32_t>(info[1]).ToChecked();
+
+  INPUT mouseInput = {0};
+  mouseInput.type = INPUT_MOUSE;
+  mouseInput.mi.dx = x;
+  mouseInput.mi.dy = y;
+  mouseInput.mi.dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE | MOUSEEVENTF_VIRTUALDESK;
+  mouseInput.mi.time = 0; //System will provide the timestamp
+
+  SendInput(1, &mouseInput, sizeof(mouseInput));
+}
+
+
 
 void getParentPid(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
@@ -98,7 +148,7 @@ void getParentPid(const Nan::FunctionCallbackInfo<v8::Value>& info) {
       Nan::ThrowTypeError("Wrong arguments");
       return;
     }
-    pid = info[0]->NumberValue();
+    pid = Nan::To<int32_t>(info[0]).ToChecked();
   }
 
   int parentPid = -1;
@@ -122,13 +172,19 @@ void getParentPid(const Nan::FunctionCallbackInfo<v8::Value>& info) {
 
 
 void Init(v8::Local<v8::Object> exports) {
-  exports->Set(Nan::New("CreateJobGroup").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(CreateJobGroup)->GetFunction());
-  exports->Set(Nan::New("GetLastInputInfo").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetLastInputInfo)->GetFunction());
-  exports->Set(Nan::New("GetTickCount").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetTickCount)->GetFunction());
-  exports->Set(Nan::New("GetChildrenProcess").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(ListProcessPID)->GetFunction());
-  exports->Set(Nan::New("GetParentProcess").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(getParentPid)->GetFunction());
+  v8::Local<v8::Context> context = exports->CreationContext();
 
+  exports->Set(context, Nan::New("CreateJobGroup").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(CreateJobGroup)->GetFunction(context).ToLocalChecked());
+  exports->Set(context, Nan::New("GetLastInputInfo").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetLastInputInfo)->GetFunction(context).ToLocalChecked());
+  exports->Set(context, Nan::New("GetTickCount").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetTickCount)->GetFunction(context).ToLocalChecked());
+  exports->Set(context, Nan::New("GetChildrenProcess").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(ListProcessPID)->GetFunction(context).ToLocalChecked());
+  exports->Set(context, Nan::New("GetParentProcess").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(getParentPid)->GetFunction(context).ToLocalChecked());
+
+
+  exports->Set(context, Nan::New("SetCursorPos").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetCursorPos)->GetFunction(context).ToLocalChecked());
+  exports->Set(context, Nan::New("moveMouse").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(moveMouse)->GetFunction(context).ToLocalChecked());
 }
+
 
 
 
