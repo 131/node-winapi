@@ -1,4 +1,4 @@
-REM expand path with Msbuild.exe path
+REM expand path with Msbuild.exe path, helps nw-gyp.cmd
 "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -prerelease -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe > %temp%\MSBUILD_PATH && set /P MSBUILD_PATH=<%temp%\MSBUILD_PATH
 for %%F in ("%MSBUILD_PATH%") do set MSBUILD_DIR=%%~dpF
 set path=%path%;%MSBUILD_DIR%

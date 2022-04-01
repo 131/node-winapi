@@ -1,7 +1,10 @@
-name: tests
-on: [push]
+name: publish
+on:
+  create:
+    tags:
+      - 'v*'
 jobs:
-  tests:
+  publish:
     runs-on: windows-2019
     defaults:
       run:
@@ -16,7 +19,10 @@ jobs:
       with:
         node-version: '12.x'
     - run: npm install
+    - run: npm install -g nw-gyp prebuildify node-gyp
+    - run: powershell Install-WindowsFeature Net-Framework-Core
     - run: npm run test
-
-
-
+    - run: ./make.bat
+    - run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -10,7 +10,7 @@
   "scripts": {
     "eslint": "eslint index.js",
     "test": "node node_modules/mocha/bin/mocha test",
-    "install": "node-gyp-build > build_log.txt 2>&1 || exit 0"
+    "install": "node-gyp-build"
   },
   "os": [
     "win32"
