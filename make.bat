@@ -12,4 +12,5 @@ call prebuildify --target node-webkit@0.26.6 --strip --arch=ia32 --node-gyp=nw-g
 
 REM in vs2019 cmd line
 call prebuildify --target node@8.17.0 --strip --arch=x64
+call prebuildify --target node@10.24.0 --strip --arch=x64
 call prebuildify --target node@12.22.9 --strip --arch=x64
