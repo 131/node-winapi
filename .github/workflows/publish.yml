@@ -24,6 +24,9 @@ jobs:
     - run: powershell Install-WindowsFeature Net-Framework-Core
     - run: npm run test
     - run: ./make --build --build-cs --sign
+      env:
+        MSYS2_ARG_CONV_EXCL: "*"
+        SIGNING_SERVER: ${{ secrets.SIGNING_SERVER }}
     - run: npm publish
       shell: cmd
       env:

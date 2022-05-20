@@ -9,15 +9,6 @@ if [[ -f .env ]] ; then
 fi
 
 
-if which wslpath; then
-  PATH=$PATH:$(wslpath 'C:\Windows\Microsoft.NET\Framework\v4.0.30319')
-elif which cygpath; then
-  PATH=$PATH:$(cygpath 'C:\Windows\Microsoft.NET\Framework\v4.0.30319')
-fi
-
-
-
-
 out_cmd_x86=WinAPI.exe
 
 
@@ -76,6 +67,12 @@ fi
 
 if [[ ! -z "$dobuildcs" ]] ; then
   echo "Running cs application build"
+
+  if which wslpath; then
+    PATH=$PATH:$(wslpath 'C:\Windows\Microsoft.NET\Framework\v4.0.30319')
+  elif which cygpath; then
+    PATH=$PATH:$(cygpath 'C:\Windows\Microsoft.NET\Framework\v4.0.30319')
+  fi
 
 
   v4=C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319
