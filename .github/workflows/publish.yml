@@ -23,7 +23,7 @@ jobs:
     - run: npm install -g nw-gyp prebuildify node-gyp
     - run: powershell Install-WindowsFeature Net-Framework-Core
     - run: npm run test
-    - run: ./make.bat
+    - run: ./make --build --build-cs --sign
     - run: npm publish
       shell: cmd
       env:

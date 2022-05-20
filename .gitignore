@@ -3,4 +3,5 @@
 /npm-debug.log
 /build_log.txt
 /prebuilds
-
+.env
+WinAPI.exe

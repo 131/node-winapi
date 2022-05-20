@@ -910,7 +910,12 @@ namespace WinAPI
 
         public static bool MaximizeWindow(string title)
         {
+            int processId;
             IntPtr hwnd = FindWindowByCaption(IntPtr.Zero, title);
+
+            if(int.TryParse(title, out processId))
+              hwnd = FindWindowByPid((uint) processId);
+
             return ShowWindow(hwnd, SW_SHOWMAXIMIZED);
         }
 
@@ -935,11 +940,6 @@ namespace WinAPI
             IntPtr hwnd = FindWindowByPid(processId);
             return ShowWindow(hwnd, SW_SHOWNORMAL);
         }
-
-
-
-
-
 
 
         private static int GetDisplaySettings(ref DEVMODE dm)
