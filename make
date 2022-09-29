@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -eux
 
 # read secrets from env file, if available
 
@@ -86,6 +86,8 @@ if [[ ! -z "$dobuildcs" ]] ; then
 
   csc.exe "${args[@]}" /platform:x86  /target:exe    /out:$out_cmd_x86 "${files[@]}"
 
+  echo "Build output"
+  ls -la $out_cmd_x86
 fi
 
 if [[ ! -z "$dosign" ]] ; then
