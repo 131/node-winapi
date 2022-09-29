@@ -1,6 +1,6 @@
 {
   "name": "winapi",
-  "version": "2.9.7",
+  "version": "2.9.8",
   "description": "Misc windows API wrappers",
   "main": "index.js",
   "dependencies": {
