@@ -2,7 +2,8 @@
 #include <windows.h>
 #include <winuser.h>
 #include <tlhelp32.h>
-
+#include <minwinbase.h>
+#include <errhandlingapi.h>
 
 
 // The width of the virtual screen, in pixels.
@@ -169,7 +170,65 @@ void getParentPid(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   info.GetReturnValue().Set(parentPid);
 }
 
+void GetUTCTime(const Nan::FunctionCallbackInfo<v8::Value>& info)
+{
+  SYSTEMTIME system_time = {};
+  v8::Local<v8::Array> ret_time = Nan::New<v8::Array>();
 
+  GetSystemTime(&system_time);
+  ret_time->Set(0, Nan::New((unsigned int) system_time.wYear));
+  ret_time->Set(1, Nan::New((unsigned int) system_time.wMonth - 1));
+  ret_time->Set(2, Nan::New((unsigned int) system_time.wDay));
+  ret_time->Set(3, Nan::New((unsigned int) system_time.wHour));
+  ret_time->Set(4, Nan::New((unsigned int) system_time.wMinute));
+  ret_time->Set(5, Nan::New((unsigned int) system_time.wSecond));
+  ret_time->Set(6, Nan::New((unsigned int) system_time.wMilliseconds));
+  info.GetReturnValue().Set(ret_time);
+}
+
+void print_last_error(const char *err_str)
+{
+  DWORD errorMessageID = GetLastError();
+
+  CHAR  *messageBuffer = nullptr;
+  size_t size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                              FORMAT_MESSAGE_FROM_SYSTEM |
+                              FORMAT_MESSAGE_IGNORE_INSERTS,
+                              NULL,
+                              errorMessageID,
+                              MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                              (LPSTR) &messageBuffer,
+                              0,
+                              NULL);
+
+  printf("ERROR: %s\n  %s",
+         err_str,
+         messageBuffer);
+  LocalFree(messageBuffer);
+}
+
+void SetUTCTime(const Nan::FunctionCallbackInfo<v8::Value>& info)
+{
+  SYSTEMTIME system_time = {};
+  v8::Local<v8::Boolean> ret_bool;
+
+  system_time.wYear         = (WORD) Nan::To<uint32_t>(info[0]).ToChecked();
+  system_time.wMonth        = (WORD) Nan::To<uint32_t>(info[1]).ToChecked() + 1;
+  system_time.wDayOfWeek    = 0;
+  system_time.wDay          = (WORD) Nan::To<uint32_t>(info[2]).ToChecked();
+  system_time.wHour         = (WORD) Nan::To<uint32_t>(info[3]).ToChecked();
+  system_time.wMinute       = (WORD) Nan::To<uint32_t>(info[4]).ToChecked();
+  system_time.wSecond       = (WORD) Nan::To<uint32_t>(info[5]).ToChecked();
+  system_time.wMilliseconds = (WORD) Nan::To<uint32_t>(info[6]).ToChecked();
+  if (SetSystemTime(&system_time) == TRUE)
+    ret_bool = Nan::New<v8::Boolean>(true);
+  else
+  {
+    print_last_error("SetSystemTime:");
+    ret_bool = Nan::New<v8::Boolean>(false);
+  }
+  info.GetReturnValue().Set(ret_bool);
+}
 
 void Init(v8::Local<v8::Object> exports) {
   v8::Local<v8::Context> context = exports->CreationContext();
@@ -183,6 +242,9 @@ void Init(v8::Local<v8::Object> exports) {
 
   exports->Set(context, Nan::New("SetCursorPos").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetCursorPos)->GetFunction(context).ToLocalChecked());
   exports->Set(context, Nan::New("moveMouse").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(moveMouse)->GetFunction(context).ToLocalChecked());
+
+  exports->Set(context, Nan::New("GetUTCTime").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetUTCTime)->GetFunction(context).ToLocalChecked());
+  exports->Set(context, Nan::New("SetUTCTime").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetUTCTime)->GetFunction(context).ToLocalChecked());
 }
 
 
