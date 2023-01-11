@@ -1,0 +1,19 @@
+image: stefanscherer/node-windows:12.18-build-tools
+
+test:
+  tags:
+    - docker-windows
+  stage: test
+  script:
+    - npm install
+    - npm test
+
+deploy:
+  tags:
+    - docker-windows
+  stage: deploy
+  only:
+    - tags
+  script:
+    - npm install
+    - npm test
