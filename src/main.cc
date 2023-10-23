@@ -90,7 +90,7 @@ void ListProcessPID(const Nan::FunctionCallbackInfo<v8::Value>& info) {
   if( Process32First(h, &pe)) {
     do {
       if (pe.th32ParentProcessID == pid)
-        children->Set(i++, Nan::New( (int) pe.th32ProcessID) );
+        Nan::Set(children, i++, Nan::New( (int) pe.th32ProcessID) );
     } while( Process32Next(h, &pe));
   }
 
@@ -176,13 +176,13 @@ void GetUTCTime(const Nan::FunctionCallbackInfo<v8::Value>& info)
   v8::Local<v8::Array> ret_time = Nan::New<v8::Array>();
 
   GetSystemTime(&system_time);
-  ret_time->Set(0, Nan::New((unsigned int) system_time.wYear));
-  ret_time->Set(1, Nan::New((unsigned int) system_time.wMonth - 1));
-  ret_time->Set(2, Nan::New((unsigned int) system_time.wDay));
-  ret_time->Set(3, Nan::New((unsigned int) system_time.wHour));
-  ret_time->Set(4, Nan::New((unsigned int) system_time.wMinute));
-  ret_time->Set(5, Nan::New((unsigned int) system_time.wSecond));
-  ret_time->Set(6, Nan::New((unsigned int) system_time.wMilliseconds));
+  Nan::Set(ret_time, 0, Nan::New((unsigned int) system_time.wYear));
+  Nan::Set(ret_time, 1, Nan::New((unsigned int) system_time.wMonth - 1));
+  Nan::Set(ret_time, 2, Nan::New((unsigned int) system_time.wDay));
+  Nan::Set(ret_time, 3, Nan::New((unsigned int) system_time.wHour));
+  Nan::Set(ret_time, 4, Nan::New((unsigned int) system_time.wMinute));
+  Nan::Set(ret_time, 5, Nan::New((unsigned int) system_time.wSecond));
+  Nan::Set(ret_time, 6, Nan::New((unsigned int) system_time.wMilliseconds));
   info.GetReturnValue().Set(ret_time);
 }
 

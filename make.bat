@@ -14,5 +14,4 @@ call prebuildify --target node@10.24.0 --strip --arch=ia32
 
 REM in vs2019 cmd line
 call prebuildify --target node@8.17.0 --strip --arch=x64
-call prebuildify --target node@10.24.0 --strip --arch=x64
-call prebuildify --target node@12.22.9 --strip --arch=x64
+call prebuildify --target node@16.20.2 --strip --arch=x64

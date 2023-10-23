@@ -4,7 +4,7 @@
   "description": "Misc windows API wrappers",
   "main": "index.js",
   "dependencies": {
-    "nan": "^2.2.0",
+    "nan": "^2.18.0",
     "node-gyp-build": "^4.4.0"
   },
   "scripts": {
