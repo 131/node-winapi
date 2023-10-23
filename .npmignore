@@ -3,3 +3,7 @@
 /build
 /src/cs
 .env
+.git*
+make*
+.eslint*
+*.gyp
