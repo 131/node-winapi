@@ -13,24 +13,35 @@ jobs:
         msystem: MINGW64
         path-type: inherit
         install: rsync
+
     - uses: actions/checkout@v4
+
     - uses: actions/setup-node@v4
       with:
         node-version: '16.x'
         registry-url: 'https://registry.npmjs.org'
+
+    - name: Pin Python to 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - run: python --version
+
     - run: npm install
     - run: npm ls
+
     - run: npm install -g nw-gyp prebuildify node-gyp
+
     - name: Install .NET Framework 3.5
       shell: pwsh
       run: |
         if (-not (Get-WindowsOptionalFeature -Online -FeatureName Net-Framework-Core).State -eq 'Enabled') {
           Install-WindowsFeature Net-Framework-Core -Source D:\sources\sxs -LimitSource -All
         }
+
     - run: ./make --build --build-cs
       env:
         MSYS2_ARG_CONV_EXCL: "*"
+
     - run: npm run test
-
-
-
