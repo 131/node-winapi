@@ -33,11 +33,15 @@ jobs:
 
     - run: npm install -g nw-gyp prebuildify node-gyp
 
-    - name: Install .NET Framework 3.5
+    - name: Ensure .NET Framework 3.5
       shell: pwsh
       run: |
-        if (-not (Get-WindowsOptionalFeature -Online -FeatureName Net-Framework-Core).State -eq 'Enabled') {
-          Install-WindowsFeature Net-Framework-Core -Source D:\sources\sxs -LimitSource -All
+        $state = (Get-WindowsOptionalFeature -Online -FeatureName Net-Framework-Core).State
+        if ($state -ne 'Enabled') {
+          Write-Host "Installing .NET Framework 3.5 via DISM..."
+          dism.exe /Online /Enable-Feature /FeatureName:Net-Framework-Core /All
+        } else {
+          Write-Host ".NET Framework 3.5 already enabled."
         }
 
     - run: ./make --build --build-cs
