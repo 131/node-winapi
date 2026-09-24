@@ -7,7 +7,9 @@ jobs:
     defaults:
       run:
         shell: msys2 {0}
+    
     steps:
+    # 1. MSYS2 (nécessaire pour wslpath dans ton make.bat)
     - uses: msys2/setup-msys2@v2
       with:
         msystem: MINGW64
@@ -16,56 +18,41 @@ jobs:
 
     - uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v4
+    # 2. Node 16 (ton code l'exige, mais on garde le script compatible)
+    - name: Setup Node 16
+      uses: actions/setup-node@v4
       with:
         node-version: '16.x'
         registry-url: 'https://registry.npmjs.org'
 
-    - name: Pin Python to 3.11
+    # 3. FIX PYTHON : Node-gyp a besoin de distutils, supprimé en Python 3.12+
+    - name: Setup Python 3.11
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
-    - run: python --version
+    # 4. FIX NW-GYP : Forcer le chemin de Python pour qu'il soit trouvé par nw-gyp
+    - name: Set PYTHON env var
+      shell: pwsh
+      run: |
+        $py = (Get-Command python).Source
+        echo "PYTHON=$py" >> $env:GITHUB_ENV
 
+    # 5. Install dependencies
     - run: npm install
     - run: npm ls
 
-    - run: npm install -g nw-gyp prebuildify node-gyp
-
-    - name: Ensure .NET Framework 3.5
+    # 6. FIX GLOBAL NODE-GYP : 
+    # L'image windows-latest installe Python 3.12 par défaut et node-gyp@13+ (incompatible Node 16).
+    # On force explicitement l'installation de la version nw-gyp/node-gyp compatible.
+    - run: npm install -g nw-gyp@3.6.8 prebuildify node-gyp@9
       shell: pwsh
-      run: |
-        # Try to detect if .NET 3.5 is already installed
-        $reg = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5' -ErrorAction SilentlyContinue
-        if ($reg -and $reg.Version -ne $null) {
-          Write-Host ".NET Framework 3.5 already installed (version $reg.Version). Skipping."
-          exit 0
-        }
 
-        Write-Host ".NET Framework 3.5 not detected. Listing candidate features..."
-        $features = (dism.exe /Online /Get-Features /Format:Table) -join "`n"
-        Write-Host $features
-
-        # Try the known feature names in order
-        $candidates = @('Net-Framework-Core', 'NetFx3-Setup', '.NET Framework 3.5')
-        foreach ($name in $candidates) {
-          Write-Host "Trying: $name"
-          $result = dism.exe /Online /Enable-Feature /FeatureName:$name /All 2>&1
-          if ($LASTEXITCODE -eq 0) {
-            Write-Host "Installed .NET Framework 3.5 via '$name'."
-            exit 0
-          } else {
-            Write-Host "Failed. Output: $result"
-          }
-        }
-
-        # Not fatal — warn and continue
-        Write-Warning "Could not install .NET Framework 3.5. Continuing anyway; failing only if a later step needs it."
-        exit 0
-
-    - run: ./make --build --build-cs
+    # 7. Build
+    - name: Run Make
+      run: ./make --build --build-cs
       env:
         MSYS2_ARG_CONV_EXCL: "*"
+        PYTHON: "${{ env.PYTHON }}"
 
     - run: npm run test
