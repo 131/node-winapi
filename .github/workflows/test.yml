@@ -3,54 +3,33 @@ on: [push]
 
 jobs:
   tests:
-    runs-on: windows-2022 # Windows 2022 contient VS 2022 par défaut
+    runs-on: windows-2022
     defaults:
       run:
         shell: msys2 {0}
+
     steps:
-    # --- Configuration de l'environnement MSYS2 (nécessaire pour make.bat) ---
-    - uses: msys2/setup-msys2@v2
-      with:
-        msystem: MINGW64
-        path-type: inherit
-        install: rsync
+      - uses: msys2/setup-msys2@v2
+        with:
+          path-type: inherit
+          install: rsync
 
-    # --- Checkout et Node 16 ---
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node 16
-      uses: actions/setup-node@v4
-      with:
-        node-version: '16.x'
-        registry-url: 'https://registry.npmjs.org'
+      - uses: actions/checkout@v4
 
-    # --- FIX PYTHON (3.11 pour distutils) ---
-    - name: Setup Python 3.11
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
 
-    # --- FIX CHEMIN PYTHON (pour nw-gyp qui le cherche manuellement) ---
-    - name: Set PYTHON env var explicitly
-      shell: pwsh
-      run: |
-        $py = (Get-Command python).Source
-        echo "PYTHON=$py" >> $env:GITHUB_ENV
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-    # --- Installation des dépendances (node-gyp@9 pour compatibilité) ---
-    - run: npm install
-    - run: npm ls
-    
-    - name: Install global tooling (nw-gyp + node-gyp compatible)
-      shell: pwsh
-      run: |
-        npm install -g nw-gyp@3.6.8 prebuildify node-gyp@9
-
-    # --- Build & Tests ---
-    - name: Run Make
-      env:
-        MSYS2_ARG_CONV_EXCL: "*"
-        PYTHON: "${{ env.PYTHON }}"
-      run: ./make --build --build-cs
-
-    - run: npm run test
+      - run: npm install
+      - run: npm ls
+      - run: npm install -g nw-gyp prebuildify
+      - run: powershell Install-WindowsFeature Net-Framework-Core
+      - run: ./make --build --build-cs
+        env:
+          MSYS2_ARG_CONV_EXCL: '*'
+      - run: npm run test
