@@ -3,56 +3,54 @@ on: [push]
 
 jobs:
   tests:
-    runs-on: windows-2022
+    runs-on: windows-2022 # Windows 2022 contient VS 2022 par défaut
     defaults:
       run:
         shell: msys2 {0}
-    
     steps:
-    # 1. MSYS2 (nécessaire pour wslpath dans ton make.bat)
+    # --- Configuration de l'environnement MSYS2 (nécessaire pour make.bat) ---
     - uses: msys2/setup-msys2@v2
       with:
         msystem: MINGW64
         path-type: inherit
         install: rsync
 
+    # --- Checkout et Node 16 ---
     - uses: actions/checkout@v4
-
-    # 2. Node 16 (ton code l'exige, mais on garde le script compatible)
+    
     - name: Setup Node 16
       uses: actions/setup-node@v4
       with:
         node-version: '16.x'
         registry-url: 'https://registry.npmjs.org'
 
-    # 3. FIX PYTHON : Node-gyp a besoin de distutils, supprimé en Python 3.12+
+    # --- FIX PYTHON (3.11 pour distutils) ---
     - name: Setup Python 3.11
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
-    # 4. FIX NW-GYP : Forcer le chemin de Python pour qu'il soit trouvé par nw-gyp
-    - name: Set PYTHON env var
+    # --- FIX CHEMIN PYTHON (pour nw-gyp qui le cherche manuellement) ---
+    - name: Set PYTHON env var explicitly
       shell: pwsh
       run: |
         $py = (Get-Command python).Source
         echo "PYTHON=$py" >> $env:GITHUB_ENV
 
-    # 5. Install dependencies
+    # --- Installation des dépendances (node-gyp@9 pour compatibilité) ---
     - run: npm install
     - run: npm ls
-
-    # 6. FIX GLOBAL NODE-GYP : 
-    # L'image windows-latest installe Python 3.12 par défaut et node-gyp@13+ (incompatible Node 16).
-    # On force explicitement l'installation de la version nw-gyp/node-gyp compatible.
-    - run: npm install -g nw-gyp@3.6.8 prebuildify node-gyp@9
+    
+    - name: Install global tooling (nw-gyp + node-gyp compatible)
       shell: pwsh
+      run: |
+        npm install -g nw-gyp@3.6.8 prebuildify node-gyp@9
 
-    # 7. Build
+    # --- Build & Tests ---
     - name: Run Make
-      run: ./make --build --build-cs
       env:
         MSYS2_ARG_CONV_EXCL: "*"
         PYTHON: "${{ env.PYTHON }}"
+      run: ./make --build --build-cs
 
     - run: npm run test
