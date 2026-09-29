@@ -1,9 +1,11 @@
 name: tests
+
 on: [push]
 
 jobs:
   tests:
     runs-on: windows-2022
+
     defaults:
       run:
         shell: msys2 {0}
@@ -27,9 +29,26 @@ jobs:
 
       - run: npm install
       - run: npm ls
-      - run: npm install -g nw-gyp prebuildify
+      - run: npm install -g nw-gyp prebuildify node-gyp@9
+
+      - name: Installer Python 2.7 pour nw-gyp
+        shell: pwsh
+        run: |
+          choco install python2 -y --no-progress
+          if (!(Test-Path 'C:\Python27\python.exe')) {
+            throw 'Python 2.7 introuvable à C:\Python27\python.exe'
+          }
+
       - run: powershell Install-WindowsFeature Net-Framework-Core
-      - run: ./make --build --build-cs
+
+      - name: Compiler
+        run: |
+          cmd.exe /c "where node-gyp.cmd"
+          cmd.exe /c "C:\Python27\python.exe --version"
+          ./make --build --build-cs
         env:
+          PYTHON: 'C:\Python27\python.exe'
+          npm_config_python: 'C:\Python27\python.exe'
           MSYS2_ARG_CONV_EXCL: '*'
+
       - run: npm run test
