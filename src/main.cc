@@ -231,20 +231,15 @@ void SetUTCTime(const Nan::FunctionCallbackInfo<v8::Value>& info)
 }
 
 void Init(v8::Local<v8::Object> exports) {
-  v8::Local<v8::Context> context = exports->CreationContext();
-
-  exports->Set(context, Nan::New("CreateJobGroup").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(CreateJobGroup)->GetFunction(context).ToLocalChecked());
-  exports->Set(context, Nan::New("GetLastInputInfo").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetLastInputInfo)->GetFunction(context).ToLocalChecked());
-  exports->Set(context, Nan::New("GetTickCount").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetTickCount)->GetFunction(context).ToLocalChecked());
-  exports->Set(context, Nan::New("GetChildrenProcess").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(ListProcessPID)->GetFunction(context).ToLocalChecked());
-  exports->Set(context, Nan::New("GetParentProcess").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(getParentPid)->GetFunction(context).ToLocalChecked());
-
-
-  exports->Set(context, Nan::New("SetCursorPos").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetCursorPos)->GetFunction(context).ToLocalChecked());
-  exports->Set(context, Nan::New("moveMouse").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(moveMouse)->GetFunction(context).ToLocalChecked());
-
-  exports->Set(context, Nan::New("GetUTCTime").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(GetUTCTime)->GetFunction(context).ToLocalChecked());
-  exports->Set(context, Nan::New("SetUTCTime").ToLocalChecked(), Nan::New<v8::FunctionTemplate>(SetUTCTime)->GetFunction(context).ToLocalChecked());
+  Nan::Set(exports, Nan::New("CreateJobGroup").ToLocalChecked(), Nan::GetFunction(Nan::New<v8::FunctionTemplate>(CreateJobGroup)).ToLocalChecked());
+  Nan::Set(exports, Nan::New("GetLastInputInfo").ToLocalChecked(), Nan::GetFunction(Nan::New<v8::FunctionTemplate>(GetLastInputInfo)).ToLocalChecked());
+  Nan::Set(exports, Nan::New("GetTickCount").ToLocalChecked(), Nan::GetFunction(Nan::New<v8::FunctionTemplate>(GetTickCount)).ToLocalChecked());
+  Nan::Set(exports, Nan::New("GetChildrenProcess").ToLocalChecked(), Nan::GetFunction(Nan::New<v8::FunctionTemplate>(ListProcessPID)).ToLocalChecked());
+  Nan::Set(exports, Nan::New("GetParentProcess").ToLocalChecked(), Nan::GetFunction(Nan::New<v8::FunctionTemplate>(getParentPid)).ToLocalChecked());
+  Nan::Set(exports, Nan::New("SetCursorPos").ToLocalChecked(), Nan::GetFunction(Nan::New<v8::FunctionTemplate>(SetCursorPos)).ToLocalChecked());
+  Nan::Set(exports, Nan::New("moveMouse").ToLocalChecked(), Nan::GetFunction(Nan::New<v8::FunctionTemplate>(moveMouse)).ToLocalChecked());
+  Nan::Set(exports, Nan::New("GetUTCTime").ToLocalChecked(), Nan::GetFunction(Nan::New<v8::FunctionTemplate>(GetUTCTime)).ToLocalChecked());
+  Nan::Set(exports, Nan::New("SetUTCTime").ToLocalChecked(), Nan::GetFunction(Nan::New<v8::FunctionTemplate>(SetUTCTime)).ToLocalChecked());
 }
 
 
