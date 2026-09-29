@@ -37,24 +37,34 @@ do
 done
 
 sign() {
-  FILE_IN="$1"
-  FILE_OUT="$FILE_IN.signed"
+  local FILE_IN="$1"
+  local FILE_OUT="$FILE_IN.signed"
+  local http_code
 
   echo "Signing $FILE_IN"
+  rm -f "$FILE_OUT"
 
-  args=(-s -X PUT --data-binary @-)
-  args=("${args[@]}"  -D -)
-  args=("${args[@]}" -o "$FILE_OUT")
-
-  response=$(cat "$FILE_IN" | curl "${args[@]}" $SIGNING_SERVER | sed 's/\r$//' )
-
-  if echo "$response" | grep -qe "HTTP/1.. 200 " ; then
-    mv "$FILE_OUT" "$FILE_IN"
-    echo "$FILE_IN successfully signed."
-  else
-    echo  "Could not sign $FILE_IN"
-    exit 1
+  if ! http_code=$(curl -sS \
+      --connect-timeout 15 \
+      --max-time 120 \
+      -X PUT \
+      --data-binary @"$FILE_IN" \
+      -o "$FILE_OUT" \
+      -w '%{http_code}' \
+      "$SIGNING_SERVER"); then
+    echo "Échec de la connexion au serveur de signature (curl)." >&2
+    rm -f "$FILE_OUT"
+    return 1
   fi
+
+  if [[ "$http_code" != "200" || ! -s "$FILE_OUT" ]]; then
+    echo "Signature échouée : HTTP $http_code ou réponse vide." >&2
+    rm -f "$FILE_OUT"
+    return 1
+  fi
+
+  mv "$FILE_OUT" "$FILE_IN"
+  echo "$FILE_IN successfully signed."
 }
 
 if [[ ! -z "$dobuild" ]] ; then
@@ -97,7 +107,7 @@ if [[ ! -z "$dosign" ]] ; then
   fi
 
   echo "Signing binaries"
-
+  set +x
   sign $out_cmd_x86
 fi
 
