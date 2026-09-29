@@ -13,6 +13,23 @@ call prebuildify --target node@10.24.0 --strip --arch=ia32
 
 
 REM in vs2019 cmd line
+
 call prebuildify --target node@8.17.0 --strip --arch=x64
+if errorlevel 1 exit /b 1
+if not exist "prebuilds\win32-x64\winapi.node" exit /b 1
+move /Y "prebuilds\win32-x64\winapi.node" "prebuilds\win32-x64\winapi.abi57.node"
+if errorlevel 1 exit /b 1
+
 call prebuildify --target node@16.20.2 --strip --arch=x64
+if errorlevel 1 exit /b 1
+if not exist "prebuilds\win32-x64\winapi.node" exit /b 1
+move /Y "prebuilds\win32-x64\winapi.node" "prebuilds\win32-x64\winapi.abi93.node"
+if errorlevel 1 exit /b 1
+
 call prebuildify --target node@24.16.0 --strip --arch=x64
+if errorlevel 1 exit /b 1
+if not exist "prebuilds\win32-x64\winapi.node" exit /b 1
+move /Y "prebuilds\win32-x64\winapi.node" "prebuilds\win32-x64\winapi.abi137.node"
+if errorlevel 1 exit /b 1
+
+dir "prebuilds\win32-x64"
