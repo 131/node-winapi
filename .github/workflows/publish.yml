@@ -1,40 +1,109 @@
 name: publish
+
 on:
-  create:
+  push:
     tags:
       - 'v*'
+
+permissions:
+  contents: write
+
 jobs:
   publish:
-    runs-on: windows-latest
+    runs-on: windows-2022
+
     defaults:
       run:
         shell: msys2 {0}
+
     steps:
-    - uses: msys2/setup-msys2@v2
-      with:
-        path-type: inherit
-        install: rsync
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '16.x'
-        registry-url: 'https://registry.npmjs.org'
-    - run: npm install
-    - run: npm install -g nw-gyp prebuildify node-gyp
-    - run: powershell Install-WindowsFeature Net-Framework-Core
-    - run: npm run test
-    - run: ./make --build --build-cs --sign
-      env:
-        MSYS2_ARG_CONV_EXCL: "*"
-        SIGNING_SERVER: ${{ secrets.SIGNING_SERVER }}
-    - run: npm publish
-      shell: cmd
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    - name: Upload binaries to release
-      uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./prebuilds/**/*
-        file_glob: true
-        tag: ${{ github.ref }}
+      - uses: msys2/setup-msys2@v2
+        with:
+          path-type: inherit
+          install: rsync
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Vérifier la version du tag
+        run: |
+          package_version="$(node -p "require('./package.json').version")"
+          test "$GITHUB_REF_NAME" = "v$package_version"
+
+      - run: npm install
+      - run: npm ls
+      - run: npm install -g nw-gyp prebuildify node-gyp@9
+
+      - name: Installer Python 2.7 pour les anciens outils de build
+        shell: pwsh
+        run: |
+          choco install python2 -y --no-progress
+          if (!(Test-Path 'C:\Python27\python.exe')) {
+            throw 'Python 2.7 introuvable'
+          }
+
+      - run: powershell Install-WindowsFeature Net-Framework-Core
+
+      - name: Vérifier les tests avant packaging
+        run: npm run test
+
+      - name: Compiler et signer
+        run: ./make --build --build-cs --sign
+        env:
+          PYTHON: 'C:\Python27\python.exe'
+          npm_config_python: 'C:\Python27\python.exe'
+          MSYS2_ARG_CONV_EXCL: '*'
+          SIGNING_SERVER: ${{ secrets.SIGNING_SERVER }}
+
+      - name: Vérifier les tests avec les prébuilds finaux
+        run: npm run test
+
+      - name: Vérifier le contenu du paquet npm
+        run: npm pack --dry-run
+
+      - name: Publier sur npm
+        shell: cmd
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Préparer les binaires de la release
+        shell: pwsh
+        run: |
+          if (!(Test-Path 'prebuilds')) {
+            throw 'Répertoire prebuilds absent'
+          }
+          if (!(Test-Path 'WinAPI.exe')) {
+            throw 'WinAPI.exe absent'
+          }
+          Compress-Archive -Path 'prebuilds' -DestinationPath 'winapi-prebuilds-windows.zip' -Force
+
+      - name: Créer la release et envoyer les binaires
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$env:GITHUB_REF_NAME" *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create "$env:GITHUB_REF_NAME" --verify-tag --generate-notes
+            if ($LASTEXITCODE -ne 0) {
+              throw 'Création de la release échouée'
+            }
+          }
+
+          gh release upload "$env:GITHUB_REF_NAME" `
+            'winapi-prebuilds-windows.zip' `
+            'WinAPI.exe' `
+            --clobber
+
+          if ($LASTEXITCODE -ne 0) {
+            throw 'Envoi des binaires échoué'
+          }
