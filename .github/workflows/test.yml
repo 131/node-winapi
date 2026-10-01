@@ -46,9 +46,22 @@ jobs:
           cmd.exe /c "where node-gyp.cmd"
           cmd.exe /c "C:\Python27\python.exe --version"
           ./make --build --build-cs
+          # Pour réactiver la signature, remplacer la ligne précédente par :
+          # ./make --build --build-cs --sign
         env:
           PYTHON: 'C:\Python27\python.exe'
           npm_config_python: 'C:\Python27\python.exe'
           MSYS2_ARG_CONV_EXCL: '*'
+          # SIGNING_SERVER: ${{ secrets.SIGNING_SERVER }}
 
       - run: npm run test
+
+      - name: Déposer les binaires en artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: winapi-unsigned
+          path: |
+            WinAPI.exe
+            prebuilds/
+          if-no-files-found: error
+          retention-days: 14
