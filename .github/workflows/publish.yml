@@ -4,9 +4,7 @@ on:
   push:
     tags:
       - 'v*'
-
-permissions:
-  contents: write
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -33,77 +31,41 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Vérifier la version du tag
-        run: |
-          package_version="$(node -p "require('./package.json').version")"
-          test "$GITHUB_REF_NAME" = "v$package_version"
-
       - run: npm install
       - run: npm ls
       - run: npm install -g nw-gyp prebuildify node-gyp@9
 
-      - name: Installer Python 2.7 pour les anciens outils de build
+      - name: Installer Python 2.7 pour nw-gyp
         shell: pwsh
         run: |
           choco install python2 -y --no-progress
           if (!(Test-Path 'C:\Python27\python.exe')) {
-            throw 'Python 2.7 introuvable'
+            throw 'Python 2.7 introuvable à C:\Python27\python.exe'
           }
 
       - run: powershell Install-WindowsFeature Net-Framework-Core
 
-      - name: Vérifier les tests avant packaging
-        run: npm run test
-
-      - name: Compiler et signer
-        run: ./make --build --build-cs --sign
+      - name: Compiler sans signature
+        run: |
+          cmd.exe /c "where node-gyp.cmd"
+          cmd.exe /c "C:\Python27\python.exe --version"
+          ./make --build --build-cs
+          # Signature à réactiver plus tard :
+          # ./make --build --build-cs --sign
         env:
           PYTHON: 'C:\Python27\python.exe'
           npm_config_python: 'C:\Python27\python.exe'
           MSYS2_ARG_CONV_EXCL: '*'
-          SIGNING_SERVER: ${{ secrets.SIGNING_SERVER }}
+          # SIGNING_SERVER: ${{ secrets.SIGNING_SERVER }}
 
-      - name: Vérifier les tests avec les prébuilds finaux
-        run: npm run test
+      - run: npm run test
 
-      - name: Vérifier le contenu du paquet npm
-        run: npm pack --dry-run
-
-      - name: Publier sur npm
-        shell: cmd
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Préparer les binaires de la release
-        shell: pwsh
-        run: |
-          if (!(Test-Path 'prebuilds')) {
-            throw 'Répertoire prebuilds absent'
-          }
-          if (!(Test-Path 'WinAPI.exe')) {
-            throw 'WinAPI.exe absent'
-          }
-          Compress-Archive -Path 'prebuilds' -DestinationPath 'winapi-prebuilds-windows.zip' -Force
-
-      - name: Créer la release et envoyer les binaires
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release view "$env:GITHUB_REF_NAME" *> $null
-          if ($LASTEXITCODE -ne 0) {
-            gh release create "$env:GITHUB_REF_NAME" --verify-tag --generate-notes
-            if ($LASTEXITCODE -ne 0) {
-              throw 'Création de la release échouée'
-            }
-          }
-
-          gh release upload "$env:GITHUB_REF_NAME" `
-            'winapi-prebuilds-windows.zip' `
-            'WinAPI.exe' `
-            --clobber
-
-          if ($LASTEXITCODE -ne 0) {
-            throw 'Envoi des binaires échoué'
-          }
+      - name: Déposer les binaires en artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: winapi-unsigned
+          path: |
+            WinAPI.exe
+            prebuilds/
+          if-no-files-found: error
+          retention-days: 14
