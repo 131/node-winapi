@@ -17,3 +17,4 @@ deploy:
   script:
     - npm install
     - npm test
+.repository: git+ssh://git@github.com/131/node-winapi.git
