@@ -24,6 +24,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - uses: actions/setup-python@v5
+        id: python
         with:
           python-version: '3.11'
 
@@ -47,8 +48,8 @@ jobs:
           cmd.exe /c "C:\Python27\python.exe --version"
           ./make --build --build-cs
         env:
-          PYTHON: 'C:\Python27\python.exe'
-          npm_config_python: 'C:\Python27\python.exe'
+          PYTHON: ${{ steps.python.outputs.python-path }}
+          npm_config_python: ${{ steps.python.outputs.python-path }}
           MSYS2_ARG_CONV_EXCL: '*'
 
       - run: npm run test

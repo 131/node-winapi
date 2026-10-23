@@ -6,12 +6,22 @@ set path=%path%;%MSBUILD_DIR%
 where msbuild.exe
 
 REM in vs2017 cmd line
+REM Legacy NW headers invoke "python" directly, not only the PYTHON variable.
+setlocal
+set "PYTHON=C:\Python27\python.exe"
+set "npm_config_python=%PYTHON%"
+set "PATH=C:\Python27;%PATH%"
+python --version
+if errorlevel 1 exit /b 1
 call prebuildify --target node-webkit@0.14.6 --strip --arch=ia32 --node-gyp=nw-gyp.cmd
 if errorlevel 1 exit /b 1
 call prebuildify --target node-webkit@0.26.0 --strip --arch=ia32 --node-gyp=nw-gyp.cmd
 if errorlevel 1 exit /b 1
 call prebuildify --target node-webkit@0.26.6 --strip --arch=ia32 --node-gyp=nw-gyp.cmd
 if errorlevel 1 exit /b 1
+endlocal
+
+REM Restore setup-python's Python 3 for node-gyp@9 and native Node targets.
 call prebuildify --target node@10.24.0 --strip --arch=ia32
 if errorlevel 1 exit /b 1
 
