@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   publish:
     runs-on: windows-2022
@@ -45,27 +48,76 @@ jobs:
 
       - run: powershell Install-WindowsFeature Net-Framework-Core
 
-      - name: Compiler sans signature
+      - name: Vérifier la version du tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: test "$GITHUB_REF_NAME" = "v$(node -p "require('./package.json').version")"
+
+      - name: Compiler
         run: |
           cmd.exe /c "where node-gyp.cmd"
           cmd.exe /c "C:\Python27\python.exe --version"
           ./make --build --build-cs
-          # Signature à réactiver plus tard :
-          # ./make --build --build-cs --sign
         env:
           PYTHON: 'C:\Python27\python.exe'
           npm_config_python: 'C:\Python27\python.exe'
           MSYS2_ARG_CONV_EXCL: '*'
-          # SIGNING_SERVER: ${{ secrets.SIGNING_SERVER }}
+
+      - uses: 131/gh-actions/sign-binaries@v1
+        with:
+          files: WinAPI.exe
+          signing-server: ${{ secrets.SIGNING_SERVER }}
+
+      - name: Vérifier la signature Authenticode
+        shell: pwsh
+        run: |
+          $signature = Get-AuthenticodeSignature -FilePath WinAPI.exe
+          if ($signature.Status -ne 'Valid') {
+            throw "Signature invalide : $($signature.Status) $($signature.StatusMessage)"
+          }
 
       - run: npm run test
+        env:
+          PREBUILDS_ONLY: '1'
 
       - name: Déposer les binaires en artefact
         uses: actions/upload-artifact@v4
         with:
-          name: winapi-unsigned
+          name: winapi-signed
           path: |
             WinAPI.exe
             prebuilds/
           if-no-files-found: error
           retention-days: 14
+
+      - name: Vérifier le contenu du paquet npm
+        run: npm pack --dry-run
+
+      - name: Publier sur npm
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: cmd
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Préparer les binaires de la release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: Compress-Archive -Path prebuilds -DestinationPath winapi-prebuilds-windows.zip -Force
+
+      - name: Publier les binaires de la release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: WinAPI.exe
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Publier les prébuilds de la release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: winapi-prebuilds-windows.zip
+          tag: ${{ github.ref }}
+          overwrite: true

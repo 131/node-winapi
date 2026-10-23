@@ -7,9 +7,13 @@ where msbuild.exe
 
 REM in vs2017 cmd line
 call prebuildify --target node-webkit@0.14.6 --strip --arch=ia32 --node-gyp=nw-gyp.cmd
+if errorlevel 1 exit /b 1
 call prebuildify --target node-webkit@0.26.0 --strip --arch=ia32 --node-gyp=nw-gyp.cmd
+if errorlevel 1 exit /b 1
 call prebuildify --target node-webkit@0.26.6 --strip --arch=ia32 --node-gyp=nw-gyp.cmd
+if errorlevel 1 exit /b 1
 call prebuildify --target node@10.24.0 --strip --arch=ia32
+if errorlevel 1 exit /b 1
 
 
 REM in vs2019 cmd line

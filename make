@@ -1,11 +1,12 @@
 #!/bin/bash
 
-set -eux
+set -eu
 
 # read secrets from env file, if available
 
-if [[ -f .env ]] ; then
-  export $(cat .env | xargs)
+if [[ -z "${SIGNING_SERVER:-}" && -f .env ]] ; then
+  SIGNING_SERVER=$(sed -n 's/^SIGNING_SERVER=//p' .env | tr -d '\r')
+  export SIGNING_SERVER
 fi
 
 
@@ -28,9 +29,9 @@ do
         ;;
     --test) dotest=true
         ;;
-    --*) echo "bad option $1"
+    --*) echo "bad option $1" >&2; exit 1
         ;;
-    *) echo "argument $1"
+    *) echo "unexpected argument $1" >&2; exit 1
         ;;
   esac
   shift
@@ -101,13 +102,16 @@ if [[ ! -z "$dobuildcs" ]] ; then
 fi
 
 if [[ ! -z "$dosign" ]] ; then
-  if [[ -z "$SIGNING_SERVER" ]] ; then
+  if [[ -z "${SIGNING_SERVER:-}" ]] ; then
     echo "No signing server defined";
     exit 1
   fi
 
   echo "Signing binaries"
-  set +x
   sign $out_cmd_x86
+fi
+
+if [[ -n "$dotest" ]] ; then
+  npm test
 fi
 

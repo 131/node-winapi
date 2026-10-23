@@ -11,6 +11,30 @@ Misc natives MS Windows API wrappers for nodejs & nwjs
 
 # API
 
+## Building and signing
+
+The Windows test workflow builds the native prebuilds and `WinAPI.exe` without
+signing. Tests use `PREBUILDS_ONLY=1` so a leftover `build/Release` binary cannot
+hide a missing or incompatible packaged prebuild.
+
+The publish workflow builds and signs `WinAPI.exe` through
+`131/gh-actions/sign-binaries@v1`, then checks its Authenticode signature on
+Windows. Set the repository secret `SIGNING_SERVER` to the current Janus
+`winapi` preset URL supplied by the administrator. Never commit that URL's token.
+Janus must reload its configuration after a preset is created or changed.
+
+`workflow_dispatch` produces a signed artifact without publishing npm or a
+GitHub release. A `v<package.json version>` tag additionally publishes npm
+(repository secret `NPM_TOKEN`) and the executable/prebuild archive to GitHub.
+No version is bumped by the workflow.
+
+For local signing, use `SIGNING_SERVER=… bash make --sign`. An explicit environment
+value takes precedence over `.env`; the old local URL/token may be obsolete.
+The script does not trace secrets and preserves the original executable if
+signing fails. `bash make --build --build-cs --test` builds and runs the tests.
+
+Build-script regression tests run on Linux: `node scripts/test-build-script.js`.
+
 ## require('winapi').getIdleTime()
 Return the time the system has been idle (since last user interaction - e.g. mouse, keyboard & stuffs, see GetLastInputInfo)
 This is really usefull if you want to create a screensaver/like in nodejs / node-webkit.
